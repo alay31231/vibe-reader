@@ -1,0 +1,16 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+/library/
+/VALIDATION.md
+desktop/localapp.spec.local.json
+desktop/src-tauri/localapp.json
+desktop/src-tauri/resources/project-root.txt
+node_modules/
+target/
+desktop/src-tauri/gen/
+*.log

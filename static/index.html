@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Vibe Reader — a source-line-aware local reader for Markdown research material."
+    />
+    <title>Vibe Reader</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <button class="brand" id="library-button" type="button" aria-label="打开文档库">
+        VIBE READER
+      </button>
+
+      <button class="document-title" id="document-menu-button" type="button" disabled>
+        <span id="document-title">正在载入…</span>
+        <span class="chevron" aria-hidden="true">⌄</span>
+      </button>
+
+      <div class="reader-controls" aria-label="阅读设置">
+        <select id="parallel-view" aria-label="对照阅读方式" hidden>
+          <option value="both">上下对照</option>
+          <option value="source">只看原文</option>
+          <option value="translation">只看译文</option>
+        </select>
+        <button id="navigation-button" class="utility-button" type="button" title="目录、定位与引用">导航</button>
+        <button id="search-button" class="icon-button search-button" type="button" title="搜索 (Ctrl/Command + K)" aria-label="搜索">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"></circle>
+            <path d="m16 16 4 4"></path>
+          </svg>
+        </button>
+        <div class="font-control">
+          <button id="font-smaller" type="button" aria-label="减小字号">A−</button>
+          <output id="font-size" aria-live="polite">19</output>
+          <button id="font-larger" type="button" aria-label="增大字号">A+</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <article id="reader" class="reader" aria-live="polite"></article>
+
+      <section id="empty-state" class="empty-state" hidden>
+        <p class="eyebrow">VIBE READER</p>
+        <h1>把书放进来</h1>
+        <p>拖入 Markdown 或纯文本文件，即可开始阅读和精确引用。</p>
+        <button id="empty-import-button" class="primary-button" type="button">选择文件</button>
+      </section>
+
+      <section id="loading-state" class="loading-state">
+        <span class="loading-mark"></span>
+        <span>正在准备材料…</span>
+      </section>
+      <section id="error-state" class="empty-state" hidden>
+        <p class="eyebrow">SOURCE NOT FOUND</p>
+        <h1>无法打开这条引用</h1>
+        <p id="error-message"></p>
+        <button id="error-library-button" class="primary-button" type="button">在文档库中查找</button>
+      </section>
+    </main>
+
+    <div id="scrim" class="scrim" hidden></div>
+
+    <aside id="library-panel" class="panel library-panel" aria-hidden="true" aria-label="文档库">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">LIBRARY</p>
+          <h2>文档库</h2>
+        </div>
+        <button class="close-button" data-close-panel type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="panel-actions">
+        <button id="import-button" class="primary-button" type="button">+  把书放进来</button>
+        <input id="library-filter" type="search" placeholder="筛选标题或文件名…" aria-label="筛选文档库" />
+        <span id="library-count" class="search-status"></span>
+        <label class="search-scope"><input id="translated-only" type="checkbox" />只看已有中文译文</label>
+      </div>
+      <div id="document-list" class="document-list"></div>
+      <p class="panel-hint">也可以将 <code>.md</code> 或 <code>.txt</code> 直接拖到页面中。
+      </p>
+    </aside>
+
+    <aside id="navigation-panel" class="panel navigation-panel" aria-hidden="true" aria-label="阅读导航" inert>
+      <div class="panel-header">
+        <div><p class="eyebrow">FOLLOW THE SOURCE</p><h2>阅读导航</h2></div>
+        <button class="close-button" data-close-panel type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="navigation-section">
+        <p id="source-details" class="panel-description">打开一份材料，开始阅读。</p>
+        <form id="paragraph-form" class="line-form">
+          <label for="paragraph-input">段落引用</label>
+          <input id="paragraph-input" type="text" required placeholder="042 或 VC-01§042" />
+          <button class="primary-button" type="submit">定位段落</button>
+        </form>
+        <form id="line-form" class="line-form">
+          <label for="line-input">跳到原文行</label>
+          <input id="line-input" type="number" min="1" required placeholder="例如 204" />
+          <button class="primary-button" type="submit">前往</button>
+        </form>
+        <h3>文档目录</h3>
+        <nav id="outline" aria-label="文档目录"></nav>
+      </div>
+      <div class="navigation-section">
+        <h3>带着出处继续追问</h3>
+        <p class="panel-description">复制当前段落及前后文，粘贴到你正在使用的 AI 对话中。选中原文，也可以直接复制引用。</p>
+        <button id="copy-context" class="primary-button" type="button">复制原文与上下文</button>
+        <button id="copy-catalog" class="primary-button" type="button">复制材料索引</button>
+        <p class="panel-description">索引包含文件名和阅读链接。AI 仍需能够读取本地材料，才能检索全文；本页不会自动发送内容。</p>
+      </div>
+    </aside>
+
+    <aside id="search-panel" class="panel search-panel" aria-hidden="true" aria-label="搜索">
+      <div class="panel-header search-header">
+        <div>
+          <p class="eyebrow">FIND A PASSAGE</p>
+          <h2>搜索材料</h2>
+        </div>
+        <button class="close-button" data-close-panel type="button" aria-label="关闭">×</button>
+      </div>
+      <form id="search-form" class="search-form" role="search">
+        <input id="search-input" type="search" autocomplete="off" placeholder="输入人名、概念或一句原文…" />
+        <label class="search-scope">
+          <input id="search-current-document" type="checkbox" />
+          <span>只搜索当前文档</span>
+        </label>
+      </form>
+      <div id="search-status" class="search-status">输入关键词，结果会带你直达原文行。</div>
+      <div id="search-results" class="search-results"></div>
+    </aside>
+
+    <div id="drop-zone" class="drop-zone" hidden>
+      <div>
+        <span class="drop-icon">↓</span>
+        <strong>松开即可导入</strong>
+        <span>Markdown 或纯文本</span>
+      </div>
+    </div>
+
+    <div id="selection-toolbar" class="copy-link-button" role="group" aria-label="原文引用" hidden>
+      <button id="copy-link-button" type="button">复制链接</button>
+      <button id="copy-quote-button" type="button">复制引用</button>
+    </div>
+    <footer class="reading-status" aria-label="阅读位置">
+      <button id="return-button" type="button" disabled>← 返回上一处</button>
+      <span id="reading-position">准备阅读</span>
+      <button id="clear-highlight" type="button" hidden>取消定位高亮</button>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <input id="file-input" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" multiple hidden />
+
+    <script src="/parallel.js" defer></script>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

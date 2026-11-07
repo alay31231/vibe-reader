@@ -1,0 +1,19 @@
+{
+  "slug": "vibe-reader-desktop",
+  "identifier": "local.vibe.reader.desktop",
+  "product_name": "Vibe Reader Desktop",
+  "display_name": "Vibe Reader",
+  "window_title": "Vibe Reader",
+  "log_directory": "Vibe-Reader-Desktop",
+  "runtime_directory": "Vibe-Reader-Desktop",
+  "backend": {
+    "executable": "python3",
+    "args": [
+      "{project_root}/desktop/backend.py",
+      "--library", "{project_root}/library"
+    ],
+    "workdir": ".",
+    "env": {"PYTHONUNBUFFERED": "1"},
+    "startup_timeout_sec": 60
+  }
+}

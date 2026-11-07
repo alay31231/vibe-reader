@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vibe Reader</title><style>
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f6f7f8;color:#18232e;display:grid;place-items:center;min-height:100vh;margin:0}
+main{width:min(440px,85vw);padding:36px;background:white;border-radius:18px;box-shadow:0 10px 40px #0001}
+h1{font-size:24px;margin:0 0 16px}#message{font-size:16px;line-height:1.6;min-height:52px}
+button{padding:10px 16px;border:0;border-radius:8px;background:#e8edf1;color:#18232e;cursor:pointer;margin-right:8px}
+button:first-child{background:#2c6fdf;color:white}#actions{display:none}
+</style></head><body><main><h1>Vibe Reader</h1><p id="message">正在启动…</p>
+<div id="actions"><button id="retry">重新启动 Backend</button><button id="logs">打开日志文件夹</button><button id="quit">退出 App</button></div>
+</main><script>
+const invoke=window.__TAURI__.core.invoke;
+window.setStartupStatus=(message,failed=false)=>{document.getElementById('message').textContent=message;document.getElementById('actions').style.display=failed?'block':'none'};
+const startupError=new URL(window.location.href).searchParams.get('error');if(startupError)setStartupStatus(startupError,true);
+document.getElementById('retry').onclick=()=>{setStartupStatus('正在重新启动…');invoke('restart_backend')};
+document.getElementById('logs').onclick=()=>invoke('open_logs');
+document.getElementById('quit').onclick=()=>invoke('quit_app');
+</script></body></html>
